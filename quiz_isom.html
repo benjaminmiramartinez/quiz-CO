@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quiz visuel ISOM 2017-2</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f5f7;margin:0;color:#202124}
+.wrap{max-width:900px;margin:0 auto;padding:28px}
+.card{background:white;border-radius:18px;padding:28px;box-shadow:0 4px 18px #0001}
+h1{margin-top:0}
+.progress{font-weight:bold;margin-bottom:16px}
+.symbol{display:flex;justify-content:center;align-items:center;height:220px;margin:10px 0 22px}
+.symbol img{max-width:90%;max-height:210px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+button.opt{padding:18px;border:2px solid #ddd;border-radius:12px;background:#fff;font-size:18px;cursor:pointer;text-align:left}
+button.opt:hover{background:#f0f4ff}
+button.opt:disabled{cursor:default}
+.feedback{margin-top:18px;padding:16px;border-radius:12px;display:none;font-size:18px}
+.correct{background:#e9f7ee;border:1px solid #9bd3aa}
+.wrong{background:#fff0f0;border:1px solid #e0a0a0}
+.next{margin-top:18px;padding:13px 20px;border:0;border-radius:10px;font-size:17px;cursor:pointer;display:none}
+.score{font-size:24px;font-weight:bold}
+@media(max-width:650px){.options{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="card">
+<h1>Quiz visuel — ISOM 2017-2</h1>
+<div id="app"></div>
+</div>
+</div>
+<script>
+const cards = [{"num": 1, "correct": "Courbe de niveau", "options": ["Ravine", "Petite dépression", "Clôture", "Courbe de niveau"], "image": "q01.png"}, {"num": 2, "correct": "Petites buttes", "options": ["Trou", "Col", "Petites buttes", "Dépressions"], "image": "q02.png"}, {"num": 3, "correct": "Dépressions", "options": ["Petites buttes", "Ravine", "Fourré", "Dépressions"], "image": "q03.png"}, {"num": 4, "correct": "Trou", "options": ["Petite butte", "Colline", "Trou", "Source"], "image": "q04.png"}, {"num": 5, "correct": "Ravine", "options": ["Falaise", "Dépression", "Fossé, drain, rigole", "Ravine"], "image": "q05.png"}, {"num": 6, "correct": "Falaise", "options": ["Bloc rocheux", "Affleurement rocheux", "Tranchée", "Falaise"], "image": "q06.png"}, {"num": 7, "correct": "Bloc rocheux", "options": ["Pic rocheux", "Groupe de blocs rocheux", "Bloc rocheux", "Falaise"], "image": "q07.png"}, {"num": 8, "correct": "Tranchée", "options": ["Fossé, drain, rigole", "Passage étroit", "Tranchée", "Ravine"], "image": "q08.png"}, {"num": 9, "correct": "Lac", "options": ["Lac", "Marais", "Étang", "Trou d'eau"], "image": "q09.png"}, {"num": 10, "correct": "Marais étroit", "options": ["Fossé, drain, rigole", "Source", "Marais étroit", "Marais"], "image": "q10.png"}, {"num": 11, "correct": "Pont / tunnel", "options": ["Tunnel", "Passerelle / petit pont", "Point de passage", "Pont / tunnel"], "image": "q11.png"}, {"num": 12, "correct": "Mur", "options": ["Élément linéaire significatif", "Mur en ruine", "Clôture", "Mur"], "image": "q12.png"}, {"num": 13, "correct": "Clôture", "options": ["Point de passage", "Mur", "Clôture", "Clôture en ruine"], "image": "q13.png"}, {"num": 14, "correct": "Ruine", "options": ["Mur en ruine", "Zone interdite d'accès", "Bâtiments", "Ruine"], "image": "q14.png"}, {"num": 15, "correct": "Escalier", "options": ["Escalier", "Passage couvert", "Surface pavée", "Pont / tunnel"], "image": "q15.png"}];
+let idx=0, score=0, answered=false;
+function render(){
+  answered=false;
+  const q=cards[idx];
+  document.getElementById('app').innerHTML=`
+    <div class="progress">Question ${q.num} / ${cards.length}</div>
+    <h2>Quel élément représente ce symbole ?</h2>
+    <div class="symbol"><img src="${q.image}" alt="Symbole ISOM"></div>
+    <div class="options">
+      ${q.options.map((o,i)=>`<button class="opt" onclick="answer(this, '${o.replace(/'/g,"\\'")}')">${String.fromCharCode(65+i)}. ${o}</button>`).join('')}
+    </div>
+    <div id="feedback" class="feedback"></div>
+    <button id="next" class="next" onclick="nextQ()">Question suivante →</button>
+  `;
+}
+function answer(btn, choice){
+  if(answered) return;
+  answered=true;
+  const q=cards[idx];
+  const ok=choice===q.correct;
+  if(ok) score++;
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  fb.style.display='block';
+  fb.className='feedback '+(ok?'correct':'wrong');
+  fb.innerHTML=ok ? '✓ Bonne réponse !' : '✗ La bonne réponse est : <b>'+q.correct+'</b>';
+  document.getElementById('next').style.display='inline-block';
+}
+function nextQ(){
+  idx++;
+  if(idx>=cards.length){
+    document.getElementById('app').innerHTML=`
+      <div class="score">Quiz terminé</div>
+      <p>Score : <b>${score} / ${cards.length}</b></p>
+      <button class="next" style="display:inline-block" onclick="idx=0;score=0;render()">Recommencer</button>
+    `;
+  } else render();
+}
+render();
+</script>
+</body>
+</html>
